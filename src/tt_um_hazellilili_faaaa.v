@@ -6,7 +6,7 @@
 
 `default_nettype none
 
-parameter LOGO_SIZE = 128;  // Size of the logo in pixels
+parameter LOGO_SIZE = 256;  // Size of the logo in pixels
 parameter DISPLAY_WIDTH = 640;  // VGA display width
 parameter DISPLAY_HEIGHT = 480;  // VGA display height
 
@@ -73,8 +73,8 @@ module tt_um_vga_example (
   wire logo_pixels = cfg_tile || (x[9:7] == 0 && y[9:7] == 0);
 
   bitmap_rom rom1 (
-      .x(x[6:0]),
-      .y(y[6:0]),
+      .x(x[7:0]),
+      .y(y[7:0]),
       .pixel(pixel_value)
   );
 

@@ -77,28 +77,44 @@ module tt_um_vga_example (
       .pixel(pixel_value)
   );
 
+  // 1. The Solid Color Palette
+  wire [5:0] palette_color;
   palette palette_inst (
       .color_index(color_index),
-      .rrggbb(color)
+      .rrggbb(palette_color)
   );
 
-  wire [5:0] gradient_color = {1'b1, y[6:2] - x[6:2] + logo_left[6:2]};
-  assign color = cfg_solid_color ? color : gradient_color;
+  // 2. The CNY Diagonal Wave Generator (For the inside of the text!)
+  // We use chunks of 64 pixels (bits [8:6]) to make thick, elegant stripes.
+  // Adding logo_left makes the gradient slowly flow across the characters.
+  wire [2:0] wave = y[4:2] - x[4:2] + logo_left[4:2];
+  
+  // Create a triangle wave (counts up, then down) for the Green channel
+  wire [1:0] grad_g = wave[2] ? ~wave[1:0] : wave[1:0];
+  
+  // Assemble the 6-bit gradient color: Red maxed, Green waves, Blue off
+  wire [5:0] cny_gradient = {2'b11, grad_g, 2'b00};
 
-  // RGB output logic
+  // 3. Choose the Character Color based on the switch (ui_in[1])
+  wire [5:0] char_color = cfg_solid_color ? palette_color : cny_gradient;
+
+  // 4. The RGB Video Output Logic
   always @(posedge clk) begin
     if (~rst_n) begin
-      R <= 0;
-      G <= 0;
-      B <= 0;
+      R <= 0; G <= 0; B <= 0;
     end else begin
-      R <= 0;
-      G <= 0;
-      B <= 0;
-      if (video_active && logo_pixels) begin
-        R <= pixel_value ? color[5:4] : 0;
-        G <= pixel_value ? color[3:2] : 0;
-        B <= pixel_value ? color[1:0] : 0;
+      // Default the background to pure black
+      R <= 0; G <= 0; B <= 0;
+      
+      if (video_active) begin
+        // If we are over the character bounding box, AND the pixel is a '1' in your ROM
+        if (logo_pixels && pixel_value) begin
+          // Draw the character using either the gradient or the palette color
+          R <= char_color[5:4];
+          G <= char_color[3:2];
+          B <= char_color[1:0];
+        end 
+        // The background remains safely black because of the default above!
       end
     end
   end

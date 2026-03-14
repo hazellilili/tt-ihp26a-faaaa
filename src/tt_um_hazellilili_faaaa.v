@@ -1,7 +1,6 @@
 /*
- * Copyright (c) 2024 Tiny Tapeout LTD
+ * Copyright (c) 2024 Hazel Li
  * SPDX-License-Identifier: Apache-2.0
- * Author: Uri Shaked
  */
 
 `default_nettype none
@@ -35,7 +34,7 @@ module tt_um_vga_example (
 
   // Configuration
   wire cfg_tile = ui_in[0];
-  wire cfg_color = ui_in[1];
+  wire cfg_solid_color = ui_in[1];
 
   // TinyVGA PMOD
   assign uo_out  = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
@@ -70,7 +69,7 @@ module tt_um_vga_example (
 
   wire [9:0] x = pix_x - logo_left;
   wire [9:0] y = pix_y - logo_top;
-  wire logo_pixels = cfg_tile || (x[9:7] == 0 && y[9:7] == 0);
+  wire logo_pixels = cfg_tile || (x[9:8] == 0 && y[9:8] == 0);
 
   bitmap_rom rom1 (
       .x(x[7:0]),
@@ -79,9 +78,12 @@ module tt_um_vga_example (
   );
 
   palette palette_inst (
-      .color_index(cfg_color ? color_index : `COLOR_WHITE),
+      .color_index(color_index),
       .rrggbb(color)
   );
+
+  wire [5:0] gradient_color = {1'b1, y[6:2] - x[6:2] + logo_left[6:2]};
+  assign color = cfg_solid_color ? color : gradient_color;
 
   // RGB output logic
   always @(posedge clk) begin

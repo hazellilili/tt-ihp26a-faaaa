@@ -65,15 +65,14 @@ module tt_um_faaaa (
 
   wire pixel_value;
   reg [2:0] color_index;
-  wire [5:0] color;
 
   wire [9:0] x = pix_x - logo_left;
   wire [9:0] y = pix_y - logo_top;
   wire logo_pixels = cfg_tile || (x[9:8] == 0 && y[9:8] == 0);
 
   bitmap_rom rom1 (
-      .x(x[7:0]),
-      .y(y[7:0]),
+      .x(x[7:1]),
+      .y(y[7:1]),
       .pixel(pixel_value)
   );
 

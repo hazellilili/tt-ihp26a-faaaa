@@ -9,12 +9,12 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+Displays a bouncing character on the screen, with animated color
 
 ## How to test
 
-Explain how to use your project
+Connect to a monitor. Set the following inputs to configure the design:
+- `tile` (ui_in[0]) to repeat the character and tile it across the screen,
+- `solid_color` (ui_in[1]) to use a solid color instead of a mix of golden and red.
 
 ## External hardware
-
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
